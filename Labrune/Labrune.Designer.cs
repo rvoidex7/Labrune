@@ -1,4 +1,4 @@
-﻿namespace Labrune
+namespace Labrune
 {
     partial class Labrune
     {
@@ -57,6 +57,7 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.PrevModifiedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.NextModifiedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TranslateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.fontSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,6 +67,7 @@
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.LangChunkSelector = new System.Windows.Forms.ComboBox();
             this.LangStatusBar = new System.Windows.Forms.StatusStrip();
             this.StatusBarText = new System.Windows.Forms.ToolStripStatusLabel();
@@ -235,6 +237,7 @@
             this.PrevModifiedToolStripMenuItem,
             this.NextModifiedToolStripMenuItem,
             this.toolStripSeparator6,
+            this.TranslateToolStripMenuItem,
             this.fontSettingsToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
@@ -322,6 +325,15 @@
             this.NextModifiedToolStripMenuItem.Text = "Go to Next Modified";
             this.NextModifiedToolStripMenuItem.Click += new System.EventHandler(this.NextModifiedToolStripMenuItem_Click);
             // 
+            // TranslateToolStripMenuItem
+            // 
+            this.TranslateToolStripMenuItem.Enabled = false;
+            this.TranslateToolStripMenuItem.Name = "TranslateToolStripMenuItem";
+            this.TranslateToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
+            this.TranslateToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.TranslateToolStripMenuItem.Text = "Translate...";
+            this.TranslateToolStripMenuItem.Click += new System.EventHandler(this.TranslateToolStripMenuItem_Click);
+            // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
@@ -360,7 +372,8 @@
             this.columnHeader1,
             this.columnHeader2,
             this.columnHeader3,
-            this.columnHeader4});
+            this.columnHeader4,
+            this.columnHeader5});
             this.LangStringView.FullRowSelect = true;
             this.LangStringView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.LangStringView.HideSelection = false;
@@ -392,6 +405,11 @@
             // 
             this.columnHeader4.Text = "Text";
             this.columnHeader4.Width = 360;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "Original";
+            this.columnHeader5.Width = 360;
             // 
             // LangChunkSelector
             // 
@@ -502,6 +520,7 @@
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
+        private System.Windows.Forms.ColumnHeader columnHeader5;
         private System.Windows.Forms.OpenFileDialog OpenLanguageFileDlg;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fontSettingsToolStripMenuItem;
@@ -535,6 +554,7 @@
         private System.Windows.Forms.SaveFileDialog SaveLanguageFileDlg;
         private System.Windows.Forms.ToolStripMenuItem PrevModifiedToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem NextModifiedToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem TranslateToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.SaveFileDialog ExportFileDialog;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
@@ -542,4 +562,3 @@
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
     }
 }
-

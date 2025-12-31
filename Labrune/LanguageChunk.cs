@@ -126,6 +126,7 @@ namespace Labrune
 
                 br.BaseStream.Position = TextOffset + br.ReadInt32();
                 StrRec.Text = CharacterSet != null ? CharacterSet.Decode(ReadNullTerminated(br)) : System.Text.Encoding.GetEncoding("ISO-8859-1").GetString(ReadNullTerminated(br));
+                StrRec.InitialText = StrRec.Text; // Set Initial Text
                 StrRec.IsModified = false;
 
                 Strings.Add(StrRec);

@@ -1,4 +1,4 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,6 +14,11 @@ namespace Labrune
 {
     public partial class Labrune : Form
     {
+        public System.Windows.Forms.ListView.SelectedListViewItemCollection SelectedListItems
+        {
+            get { return LangStringView.SelectedItems; }
+        }
+
         LabruneFind Finder;
         LabruneExport Exporter;
         LabruneRestore Restorer;
@@ -27,8 +32,8 @@ namespace Labrune
             Saver = new LabruneOptions();
         }
 
-        List<File> Files = new List<File>();
-        List<LanguageChunk> LangChunks = new List<LanguageChunk>();
+        public List<File> Files = new List<File>();
+        public List<LanguageChunk> LangChunks = new List<LanguageChunk>();
         LanguageHistogramChunk HistChunk;
         bool IsFileModified = false;
         bool HasLabels = false;
@@ -37,7 +42,7 @@ namespace Labrune
         List<int> ModifiedValuesIndexes = new List<int>();
         int FindIndex;
         int ModifyIndex;
-        int CurrentChunk = 0;
+        public int CurrentChunk = 0;
 
         public void MarkFileAsModified()
         {
@@ -81,6 +86,7 @@ namespace Labrune
                 StrItm.SubItems.Add(StR.Hash.ToString("X8"));
                 StrItm.SubItems.Add(StR.Label);
                 StrItm.SubItems.Add(StR.Text);
+                StrItm.SubItems.Add(StR.InitialText);
 
                 int ItemIndex = LangChunks[CurrentChunk].Strings.IndexOf(StR);
                 if (ItemIndex >= 0)
@@ -218,41 +224,20 @@ namespace Labrune
 
         public void ThrowInfo(string Title, string Instruction, string Message)
         {
-            TaskDialog ErrDialog = new TaskDialog();
-            ErrDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-            ErrDialog.Icon = TaskDialogStandardIcon.Information;
-            ErrDialog.InstructionText = string.IsNullOrEmpty(Instruction) ? "" : Instruction;
-            ErrDialog.Caption = string.IsNullOrEmpty(Title) ? "" : Title;
-            ErrDialog.Text = string.IsNullOrEmpty(Message) ? "" : Message;
-            ErrDialog.OwnerWindowHandle = this.Handle;
-            ErrDialog.Show();
+            MessageBox.Show((string.IsNullOrEmpty(Instruction) ? "" : Instruction + "\n\n") + (string.IsNullOrEmpty(Message) ? "" : Message),
+                            string.IsNullOrEmpty(Title) ? "Labrune" : Title, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         public void ThrowError(string Title, string Instruction, string Message)
         {
-            TaskDialog ErrDialog = new TaskDialog();
-            ErrDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-            ErrDialog.Icon = TaskDialogStandardIcon.Error;
-            ErrDialog.InstructionText = string.IsNullOrEmpty(Instruction) ? "" : Instruction;
-            ErrDialog.Caption = string.IsNullOrEmpty(Title) ? "" : Title;
-            ErrDialog.Text = string.IsNullOrEmpty(Message) ? "" : Message;
-            ErrDialog.OwnerWindowHandle = this.Handle;
-            ErrDialog.Show();
+            MessageBox.Show((string.IsNullOrEmpty(Instruction) ? "" : Instruction + "\n\n") + (string.IsNullOrEmpty(Message) ? "" : Message),
+                            string.IsNullOrEmpty(Title) ? "Labrune" : Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         public void ThrowError(string Title, string Instruction, string Message, string Details)
         {
-            TaskDialog ErrDialog = new TaskDialog();
-            ErrDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-            ErrDialog.Icon = TaskDialogStandardIcon.Error;
-            ErrDialog.InstructionText = string.IsNullOrEmpty(Instruction) ? "" : Instruction;
-            ErrDialog.Caption = string.IsNullOrEmpty(Title) ? "" : Title;
-            ErrDialog.Text = string.IsNullOrEmpty(Message) ? "" : Message;
-            ErrDialog.DetailsExpanded = false;
-            ErrDialog.DetailsExpandedText = string.IsNullOrEmpty(Details) ? "" : Details;
-            ErrDialog.ExpansionMode = TaskDialogExpandedDetailsLocation.ExpandFooter;
-            ErrDialog.OwnerWindowHandle = this.Handle;
-            ErrDialog.Show();
+             MessageBox.Show((string.IsNullOrEmpty(Instruction) ? "" : Instruction + "\n\n") + (string.IsNullOrEmpty(Message) ? "" : Message) + "\n\n" + (string.IsNullOrEmpty(Details) ? "" : Details),
+                            string.IsNullOrEmpty(Title) ? "Labrune" : Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         public void EnableMenuOptions()
@@ -265,7 +250,9 @@ namespace Labrune
             AddToolStripMenuItem.Enabled = true;
             EditStrToolStripMenuItem.Enabled = true;
             RemoveToolStripMenuItem.Enabled = true;
+            RemoveToolStripMenuItem.Enabled = true;
             SearchToolStripMenuItem.Enabled = true;
+            TranslateToolStripMenuItem.Enabled = true;
         }
 
         public void DisableMenuOptions()
@@ -279,6 +266,7 @@ namespace Labrune
             EditStrToolStripMenuItem.Enabled = false;
             RemoveToolStripMenuItem.Enabled = false;
             SearchToolStripMenuItem.Enabled = false;
+            TranslateToolStripMenuItem.Enabled = false;
         }
 
         public bool LoadFile(string filename)
@@ -361,8 +349,10 @@ namespace Labrune
         {
             foreach (var i in Files[1].Chunks)
             {
-                if (i is LanguageChunk l)
+                if (i is LanguageChunk)
                 {
+                    LanguageChunk l = i as LanguageChunk;
+
                     foreach (LanguageStringRecord LSR in LngChk.Strings)
                     {
                         LanguageStringRecord result = l.Strings.Find(x => x.Hash == LSR.Hash);
@@ -496,14 +486,14 @@ namespace Labrune
                                 bool IsLabelTrue = ((uint)BinHash.Hash(sR.Label) == sR.Hash);
                                 string Hash = (IsLabelTrue ? "AUTO" : sR.Hash.ToString("X8")).Trim('\0', ' ');
                                 string Label = (String.IsNullOrWhiteSpace(sR.Label) ? "0x" + sR.Hash.ToString("X8") : sR.Label).Trim('\0', ' ');
-                                string Text = (IsLabelFile ? Label : sR.Text).Trim('\0', ' ');
+                                string RecText = (IsLabelFile ? Label : sR.Text).Trim('\0', ' ');
 
                                 // Export the entry
                                 TXTFile.WriteLine("{0}\t{1}\t{2}\t{3}",
                                                     LangChunks.IndexOf(i), // {0} Chunk ID
                                                     Hash, // {1} Hash
                                                     Label, // {2} Label
-                                                    Text); // {3} String
+                                                    RecText); // {3} String
                             }
                         }
 
@@ -620,7 +610,7 @@ namespace Labrune
                                     bool IsLabelTrue = ((uint)BinHash.Hash(sR.Label) == sR.Hash);
                                     string Hash = (IsLabelTrue ? "AUTO" : "0x" + sR.Hash.ToString("X8")).Trim('\0', ' ');
                                     string Label = (String.IsNullOrWhiteSpace(sR.Label) ? "0x" + sR.Hash.ToString("X8") : sR.Label).Trim('\0', ' ');
-                                    string Text = (IsLabelFile ? Label : sR.Text).Trim('\0', ' ');
+                                    string RecText = (IsLabelFile ? Label : sR.Text).Trim('\0', ' ');
 
                                     // Export the entry
                                     if (Exporter.UseAddOrUpdate) // add_or_update_string
@@ -630,7 +620,7 @@ namespace Labrune
                                                         ChunkName, // {1} Chunk name
                                                         Hash, // {2} Hash
                                                         Label, // {3} Label
-                                                        Text); // {4} String
+                                                        RecText); // {4} String
 
                                     }
                                     else // if string_exists...
@@ -644,14 +634,14 @@ namespace Labrune
                                                         "Languages\\" + LanguageFileName, // {0} File name
                                                         ChunkName, // {1} Chunk name
                                                         Label, // {2} Label
-                                                        Text); // {3} String
+                                                        RecText); // {3} String
                                         ENDFile.WriteLine("else");
                                         ENDFile.WriteLine("add_string {0} STRBlocks {1} {2} {3} \"{4}\"",
                                                         "Languages\\" + LanguageFileName, // {0} File name
                                                         ChunkName, // {1} Chunk name
                                                         Hash, // {2} Hash
                                                         Label, // {3} Label
-                                                        Text); // {4} String
+                                                        RecText); // {4} String
                                         ENDFile.WriteLine("end");
                                         ENDFile.WriteLine();
                                     }
@@ -735,17 +725,10 @@ namespace Labrune
                         return;
                     }
 
-                    TaskDialog RstrDialog = new TaskDialog()
-                    {
-                        StandardButtons = TaskDialogStandardButtons.Yes | TaskDialogStandardButtons.No,
-                        Icon = TaskDialogStandardIcon.Warning,
-                        InstructionText = "Restore backups?",
-                        Caption = "Labrune",
-                        Text = "Are you sure you want to restore " + Restorer.FilesToRestoreSelected.Count + " backup(s)?" + Environment.NewLine + "After this operation, Labrune will reload the current file in case it gets replaced."
-                    };
-                    var result = RstrDialog.Show();
+                    var result = MessageBox.Show("Restore backups?\n\nAre you sure you want to restore " + Restorer.FilesToRestoreSelected.Count + " backup(s)?" + Environment.NewLine + "After this operation, Labrune will reload the current file in case it gets replaced.",
+                                                 "Labrune", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-                    if (result == TaskDialogResult.No) return;
+                    if (result == DialogResult.No) return;
 
                     IsRestoredSuccessfully = RestoreBackups(Restorer); // Restore the backups
 
@@ -798,8 +781,10 @@ namespace Labrune
 
                     foreach (var i in Files[0].Chunks)
                     {
-                        if (i is LanguageChunk l)
+                        if (i is LanguageChunk)
                         {
+                            LanguageChunk l = i as LanguageChunk;
+
                             LangChunks.Add(l);
                             if (HasLabels) LoadLabels(l);
                             LangChunkSelector.Items.Add("[Language: " + l.Version.ToString() + "] #" + NrLangChk++ + (String.IsNullOrEmpty(l.Category) ? "" : (" - " + l.Category)));
@@ -826,17 +811,11 @@ namespace Labrune
                 }
                 else
                 {
-                    TaskDialog RstrDialog = new TaskDialog()
-                    {
-                        StandardButtons = TaskDialogStandardButtons.Yes | TaskDialogStandardButtons.No,
-                        Icon = TaskDialogStandardIcon.Error,
-                        InstructionText = "Error!",
-                        Caption = "Labrune",
-                        Text = "The file is in an invalid format." + Environment.NewLine + "Would you like to restore a backup of it?"
-                    };
-                    var result = RstrDialog.Show();
 
-                    if (result == TaskDialogResult.No)
+                    var result = MessageBox.Show("The file is in an invalid format." + Environment.NewLine + "Would you like to restore a backup of it?",
+                                                 "Labrune", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+
+                    if (result == DialogResult.No)
                     {
                         StatusBarText.Text = "Invalid file.";
                         DisableMenuOptions();
@@ -918,20 +897,14 @@ namespace Labrune
         {
             if (IsFileModified == true)
             {
-                TaskDialog ExitDialog = new TaskDialog();
-                ExitDialog.StandardButtons = TaskDialogStandardButtons.Yes | TaskDialogStandardButtons.No | TaskDialogStandardButtons.Cancel;
-                ExitDialog.Icon = TaskDialogStandardIcon.Warning;
-                ExitDialog.InstructionText = "Save?";
-                ExitDialog.Caption = "Labrune";
-                ExitDialog.Text = "Would you like to save your changes before quitting?";
+                var result = MessageBox.Show("Would you like to save your changes before quitting?",
+                                             "Labrune", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
 
-                var result = ExitDialog.Show();
-
-                if (result == TaskDialogResult.Yes)
+                if (result == DialogResult.Yes)
                 {
                     SaveToolStripMenuItem_Click(this, new EventArgs());
                 }
-                else if (result == TaskDialogResult.Cancel)
+                else if (result == DialogResult.Cancel)
                 {
                     // Return to the form
                     e.Cancel = true;
@@ -1007,28 +980,13 @@ namespace Labrune
 
                     //MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK);
 
-                    TaskDialog MsgDialog = new TaskDialog();
-                    MsgDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    MsgDialog.Icon = TaskDialogStandardIcon.Information;
-                    MsgDialog.InstructionText = "Done!";
-                    MsgDialog.Caption = "Labrune";
-                    MsgDialog.Text = Status;
-                    MsgDialog.Show();
+                    MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 }
                 catch (Exception ex)
                 {
                     //MessageBox.Show("There is something wrong with the selected text file." + Environment.NewLine + "It may be currently used, corrupted or Labrune doesn't have enough permissions to process it.", "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    TaskDialog ErrDialog = new TaskDialog();
-                    ErrDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    ErrDialog.Icon = TaskDialogStandardIcon.Error;
-                    ErrDialog.InstructionText = "Error!";
-                    ErrDialog.Caption = "Labrune";
-                    ErrDialog.Text = "There is something wrong with the selected text file." + Environment.NewLine + "It may be currently used, corrupted or Labrune doesn't have enough permissions to process it.";
-                    ErrDialog.DetailsExpanded = false;
-                    ErrDialog.DetailsExpandedText = ex.ToString();
-                    ErrDialog.ExpansionMode = TaskDialogExpandedDetailsLocation.ExpandFooter;
-                    ErrDialog.Show();
+                    MessageBox.Show("There is something wrong with the selected text file." + Environment.NewLine + "It may be currently used, corrupted or Labrune doesn't have enough permissions to process it." + Environment.NewLine + Environment.NewLine + ex.ToString(), "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -1185,13 +1143,7 @@ namespace Labrune
                 else
                 {
                     //MessageBox.Show("Search couldn't find anything with text \"" + Finder.ValueToFind + "\".", "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    TaskDialog MsgDialog = new TaskDialog();
-                    MsgDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    MsgDialog.Icon = TaskDialogStandardIcon.Warning;
-                    MsgDialog.InstructionText = "Not found.";
-                    MsgDialog.Caption = "Labrune";
-                    MsgDialog.Text = "Search couldn't find anything with text \"" + Finder.ValueToFind + "\".";
-                    MsgDialog.Show();
+                    MessageBox.Show("Search couldn't find anything with text \"" + Finder.ValueToFind + "\".", "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                     FindNextToolStripMenuItem.Enabled = false;
                     FindPreviousToolStripMenuItem.Enabled = false;
@@ -1228,28 +1180,21 @@ namespace Labrune
 
         private void ReCompilerConfigurationsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            dialog.Title = "Select the folder which contains Language Config files for ReCompiler";
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "Select the folder which contains Language Config files for ReCompiler";
 
             int ImportedEntries = 0;
             int IgnoredEntries = 0;
 
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
-                DirectoryInfo di = new DirectoryInfo(dialog.FileName);
+                DirectoryInfo di = new DirectoryInfo(dialog.SelectedPath);
                 FileInfo[] INIFiles = di.GetFiles("*.ini");
 
                 if (INIFiles.Length == 0)
                 {
                     //MessageBox.Show("There aren't any ReCompiler Language Config files in the selected folder.", "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    TaskDialog MsgNDialog = new TaskDialog();
-                    MsgNDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    MsgNDialog.Icon = TaskDialogStandardIcon.Warning;
-                    MsgNDialog.InstructionText = "Not found.";
-                    MsgNDialog.Caption = "Labrune";
-                    MsgNDialog.Text = "There aren't any ReCompiler Language Config files in the selected folder.";
-                    MsgNDialog.Show();
+                    MessageBox.Show("There aren't any ReCompiler Language Config files in the selected folder.", "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
@@ -1281,42 +1226,29 @@ namespace Labrune
                     if (IgnoredEntries > 0) Status += "\n" + "Ignored" + " " + IgnoredEntries + " " + "entries due to some errors.";
 
                     //MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK);
-                    TaskDialog MsgDialog = new TaskDialog();
-                    MsgDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    MsgDialog.Icon = TaskDialogStandardIcon.Information;
-                    MsgDialog.InstructionText = "Done!";
-                    MsgDialog.Caption = "Labrune";
-                    MsgDialog.Text = Status;
-                    MsgDialog.Show();
+                    MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }
 
         private void EdConfigurationsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            dialog.Title = "Select the folder which contains Config files for Ed";
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "Select the folder which contains Config files for Ed";
 
             int ImportedEntries = 0;
             int IgnoredEntries = 0;
             int NoEntries = 0;
 
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
-                DirectoryInfo di = new DirectoryInfo(dialog.FileName);
+                DirectoryInfo di = new DirectoryInfo(dialog.SelectedPath);
                 FileInfo[] INIFiles = di.GetFiles("*.ini");
 
                 if (INIFiles.Length == 0)
                 {
                     //MessageBox.Show("There aren't any Ed Config files in the selected folder.", "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    TaskDialog MsgNDialog = new TaskDialog();
-                    MsgNDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    MsgNDialog.Icon = TaskDialogStandardIcon.Warning;
-                    MsgNDialog.InstructionText = "Not found.";
-                    MsgNDialog.Caption = "Labrune";
-                    MsgNDialog.Text = "There aren't any Ed Config files in the selected folder.";
-                    MsgNDialog.Show();
+                    MessageBox.Show("There aren't any Ed Config files in the selected folder.", "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
@@ -1372,13 +1304,7 @@ namespace Labrune
 
                 //MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK);
 
-                TaskDialog MsgDialog = new TaskDialog();
-                MsgDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                MsgDialog.Icon = TaskDialogStandardIcon.Information;
-                MsgDialog.InstructionText = "Done!";
-                MsgDialog.Caption = "Labrune";
-                MsgDialog.Text = Status;
-                MsgDialog.Show();
+                MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             }
         }
@@ -1433,27 +1359,12 @@ namespace Labrune
 
                     //MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK);
 
-                    TaskDialog MsgDialog = new TaskDialog();
-                    MsgDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    MsgDialog.Icon = TaskDialogStandardIcon.Information;
-                    MsgDialog.InstructionText = "Done!";
-                    MsgDialog.Caption = "Labrune";
-                    MsgDialog.Text = Status;
-                    MsgDialog.Show();
+                    MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
                     //MessageBox.Show("There is something wrong with the selected text file." + Environment.NewLine + "It may be currently used, corrupted or Labrune doesn't have enough permissions to process it.", "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    TaskDialog ErrDialog = new TaskDialog();
-                    ErrDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    ErrDialog.Icon = TaskDialogStandardIcon.Error;
-                    ErrDialog.InstructionText = "Error!";
-                    ErrDialog.Caption = "Labrune";
-                    ErrDialog.Text = "There is something wrong with the selected text file." + Environment.NewLine + "It may be currently used, corrupted or Labrune doesn't have enough permissions to process it.";
-                    ErrDialog.DetailsExpanded = false;
-                    ErrDialog.DetailsExpandedText = ex.ToString();
-                    ErrDialog.ExpansionMode = TaskDialogExpandedDetailsLocation.ExpandFooter;
-                    ErrDialog.Show();
+                    MessageBox.Show("There is something wrong with the selected text file." + Environment.NewLine + "It may be currently used, corrupted or Labrune doesn't have enough permissions to process it." + Environment.NewLine + Environment.NewLine + ex.ToString(), "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -1506,28 +1417,13 @@ namespace Labrune
                     if (IgnoredEntries > 0) Status += "\n" + "Ignored" + " " + IgnoredEntries + " " + "entries due to some formatting errors in selected text file.";
 
                     //MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK);
-                    TaskDialog MsgDialog = new TaskDialog();
-                    MsgDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    MsgDialog.Icon = TaskDialogStandardIcon.Information;
-                    MsgDialog.InstructionText = "Done!";
-                    MsgDialog.Caption = "Labrune";
-                    MsgDialog.Text = Status;
-                    MsgDialog.Show();
+                    MessageBox.Show(Status, "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 }
                 catch (Exception ex)
                 {
                     //MessageBox.Show("There is something wrong with the selected ReCompiler config file." + Environment.NewLine + "It may be currently used, corrupted or Labrune doesn't have enough permissions to process it.", "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    TaskDialog ErrDialog = new TaskDialog();
-                    ErrDialog.StandardButtons = TaskDialogStandardButtons.Ok;
-                    ErrDialog.Icon = TaskDialogStandardIcon.Error;
-                    ErrDialog.InstructionText = "Error!";
-                    ErrDialog.Caption = "Labrune";
-                    ErrDialog.Text = "There is something wrong with the selected ReCompiler config file." + Environment.NewLine + "It may be currently used, corrupted or Labrune doesn't have enough permissions to process it.";
-                    ErrDialog.DetailsExpanded = false;
-                    ErrDialog.DetailsExpandedText = ex.ToString();
-                    ErrDialog.ExpansionMode = TaskDialogExpandedDetailsLocation.ExpandFooter;
-                    ErrDialog.Show();
+                    MessageBox.Show("There is something wrong with the selected ReCompiler config file." + Environment.NewLine + "It may be currently used, corrupted or Labrune doesn't have enough permissions to process it." + Environment.NewLine + Environment.NewLine + ex.ToString(), "Labrune", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -1580,8 +1476,18 @@ namespace Labrune
 
         private void AboutLabruneToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var AboutWindow = new LabruneAbout();
-            AboutWindow.ShowDialog();
+            LabruneAbout About = new LabruneAbout();
+            About.ShowDialog();
+        }
+
+        private void TranslateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+             // Will be implemented after creating LabruneTranslate form
+             LabruneTranslate TranslateForm = new LabruneTranslate(this);
+             if (TranslateForm.ShowDialog() == DialogResult.OK)
+             {
+                 RefreshStringView();
+             }
         }
 
         private void exportToolStripMenuItem_Click(object sender, EventArgs e)

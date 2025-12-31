@@ -5,6 +5,7 @@
         public uint Hash;
         public string Label;
         public string Text;
+        public string InitialText; // To store the original value
         public bool IsModified;
 
         // Constructor with both values
@@ -34,6 +35,7 @@
             Hash = _Hash;
             Label = _Label;
             Text = _Text;
+            InitialText = _Text; // Initialize Original Value
             IsModified = true;
         }
 

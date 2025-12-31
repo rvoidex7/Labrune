@@ -14,10 +14,11 @@ namespace Labrune
         public String NewValue { get; set; }
         public String NewLabel { get; set; }
 
-        public bool IsNewString { get; set; } = false;
-
+        public bool IsNewString { get; set; }
+        
         public LabruneEdit()
         {
+            IsNewString = false;
             InitializeComponent();
         }
 
