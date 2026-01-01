@@ -123,6 +123,11 @@
     <Compile Include="LanguageStringRecord.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Translators\ITranslator.cs" />
+    <Compile Include="Translators\OpenAITranslator.cs" />
+    <Compile Include="Translators\DeepLTranslator.cs" />
+    <Compile Include="Translators\GeminiTranslator.cs" />
+    <Compile Include="Translators\TranslatorFactory.cs" />
     <EmbeddedResource Include="Labrune.resx">
       <DependentUpon>Labrune.cs</DependentUpon>
     </EmbeddedResource>
