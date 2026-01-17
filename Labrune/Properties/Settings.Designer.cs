@@ -22,5 +22,77 @@ namespace Labrune.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ApiKey {
+            get {
+                return ((string)(this["ApiKey"]));
+            }
+            set {
+                this["ApiKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("OpenAI")]
+        public string LastProvider {
+            get {
+                return ((string)(this["LastProvider"]));
+            }
+            set {
+                this["LastProvider"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CustomPrompt {
+            get {
+                return ((string)(this["CustomPrompt"]));
+            }
+            set {
+                this["CustomPrompt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("gpt-3.5-turbo")]
+        public string ModelName {
+            get {
+                return ((string)(this["ModelName"]));
+            }
+            set {
+                this["ModelName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://api.openai.com/v1/chat/completions")]
+        public string BaseUrl {
+            get {
+                return ((string)(this["BaseUrl"]));
+            }
+            set {
+                this["BaseUrl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("TR")]
+        public string TargetLang {
+            get {
+                return ((string)(this["TargetLang"]));
+            }
+            set {
+                this["TargetLang"] = value;
+            }
+        }
     }
 }

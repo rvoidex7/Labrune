@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Labrune.Translators
 {
@@ -14,41 +15,48 @@ namespace Labrune.Translators
             this.ApiKey = apiKey;
         }
 
-        public async Task<string> Translate(HttpClient client, string text, string[] rules)
-        {
-            // Prepare the request body
-            string jsonContent = "{"
-                + "\"text\": [\"" + EscapeJson(text) + "\"],"
-                + "\"target_lang\": \"TR\""
-            +"}";
+        public bool RequiresApiKey { get { return true; } }
+        public bool SupportsCustomPrompt { get { return false; } }
+        public bool SupportsModelSelection { get { return false; } }
 
-            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+        public async Task<string> Translate(HttpClient client, string text, string customPrompt, string modelName, string extraParams)
+        {
+            // extraParams is used for TargetLang (e.g. "TR", "EN-US")
+            string targetLang = string.IsNullOrEmpty(extraParams) ? "TR" : extraParams;
+
+            // DeepL API Url (Free vs Pro)
+            // If key ends with :fx, use free endpoint
+            string baseUrl = this.ApiKey.EndsWith(":fx") 
+                ? "https://api-free.deepl.com/v2/translate" 
+                : "https://api.deepl.com/v2/translate";
 
             try
             {
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Add("Authorization", "DeepL-Auth-Key " + this.ApiKey);
-                var response = await client.PostAsync("https://api-free.deepl.com/v2/translate", content);
+                // Form Url Encoded content
+                var collection = new List<KeyValuePair<string, string>>();
+                collection.Add(new KeyValuePair<string, string>("auth_key", this.ApiKey));
+                collection.Add(new KeyValuePair<string, string>("text", text));
+                collection.Add(new KeyValuePair<string, string>("target_lang", targetLang.ToUpper()));
+
+                var content = new FormUrlEncodedContent(collection);
+
+                var response = await client.PostAsync(baseUrl, content);
                 string responseString = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Parse "text": "..."
-                    // Very hacky parser for demo purposes
-                    int contentIndex = responseString.IndexOf("\"text\":");
-                    if (contentIndex > 0)
+                    // Parse {"translations":[{"detected_source_language":"EN","text":"Hello World"}]}
+                    int textIndex = responseString.IndexOf("\"text\":");
+                    if (textIndex > 0)
                     {
-                        int startQuote = responseString.IndexOf("\"", contentIndex + 7);
+                        int startQuote = responseString.IndexOf("\"", textIndex + 7);
                         if (startQuote > 0)
                         {
-                            // Find end quote, watching for escapes
                             int endQuote = startQuote + 1;
                             while (endQuote < responseString.Length)
                             {
                                 if (responseString[endQuote] == '"' && responseString[endQuote - 1] != '\\')
-                                {
                                     break;
-                                }
                                 endQuote++;
                             }
 
@@ -60,16 +68,17 @@ namespace Labrune.Translators
                         }
                     }
                 }
+                else
+                {
+                    Console.WriteLine("DeepL Error: " + response.StatusCode + " " + responseString);
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine("DeepL Exception: " + ex.Message);
+            }
 
-            return text; // Return original on failure
-        }
-
-        private string EscapeJson(string s)
-        {
-            if (s == null) return "";
-            return s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "\\n");
+            return text;
         }
 
         private string UnescapeJson(string s)

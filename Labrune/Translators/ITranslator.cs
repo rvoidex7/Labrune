@@ -5,6 +5,9 @@ namespace Labrune.Translators
 {
     public interface ITranslator
     {
-        Task<string> Translate(HttpClient client, string text, string[] rules);
+        bool RequiresApiKey { get; }
+        bool SupportsCustomPrompt { get; }
+        bool SupportsModelSelection { get; }
+        Task<string> Translate(HttpClient client, string text, string customPrompt, string modelName, string extraParams);
     }
 }

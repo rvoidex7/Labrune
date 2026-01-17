@@ -7,7 +7,7 @@
     <ProjectGuid>{3B10A5B4-2AF6-4A12-9FE2-56E9A256A13C}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Labrune</RootNamespace>
-    <AssemblyName>Labrune</AssemblyName>
+    <AssemblyName>Labrune_V3</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -63,6 +63,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinHash.cs" />
@@ -128,6 +129,13 @@
     <Compile Include="Translators\DeepLTranslator.cs" />
     <Compile Include="Translators\GeminiTranslator.cs" />
     <Compile Include="Translators\TranslatorFactory.cs" />
+    <Compile Include="Translators\GoogleTranslator.cs" />
+    <Compile Include="LabruneLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LabruneLog.Designer.cs">
+      <DependentUpon>LabruneLog.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Labrune.resx">
       <DependentUpon>Labrune.cs</DependentUpon>
     </EmbeddedResource>

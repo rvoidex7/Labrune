@@ -14,13 +14,26 @@ namespace Labrune.Translators
             this.ApiKey = apiKey;
         }
 
-        public async Task<string> Translate(HttpClient client, string text, string[] rules)
+        public bool RequiresApiKey { get { return true; } }
+        public bool SupportsCustomPrompt { get { return true; } }
+        public bool SupportsModelSelection { get { return true; } }
+
+        public async Task<string> Translate(HttpClient client, string text, string customPrompt, string modelName, string extraParams)
         {
+            // extraParams or modelName could specify model. Default: gemini-pro
+            string model = string.IsNullOrEmpty(modelName) ? "gemini-pro" : modelName;
+            
             // Prepare the request body
+            // Gemini doesn't have a distinct "system" role in the generateContent API in the same way as Chat
+            // But we can prepend instructions.
+            string finalPrompt = string.IsNullOrEmpty(customPrompt) 
+                ? "Translate the following text to Turkish: " + text 
+                : customPrompt + "\n\nText to translate: " + text;
+
             string jsonContent = "{"
                 + "\"contents\": [{"
                     + "\"parts\": [{"
-                        + "\"text\": \"Translate the following text to Turkish, following these rules: " + string.Join(", ", rules) + ". Text to translate: " + EscapeJson(text) + "\""
+                        + "\"text\": \"" + EscapeJson(finalPrompt) + "\""
                     + "}]"
                 + "}]"
             +"}";
@@ -31,20 +44,18 @@ namespace Labrune.Translators
             {
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("x-goog-api-key", this.ApiKey);
-                var response = await client.PostAsync("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent", content);
+                var response = await client.PostAsync("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", content);
                 string responseString = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
                 {
                     // Parse "text": "..."
-                    // Very hacky parser for demo purposes
                     int contentIndex = responseString.IndexOf("\"text\":");
                     if (contentIndex > 0)
                     {
                         int startQuote = responseString.IndexOf("\"", contentIndex + 7);
                         if (startQuote > 0)
                         {
-                            // Find end quote, watching for escapes
                             int endQuote = startQuote + 1;
                             while (endQuote < responseString.Length)
                             {

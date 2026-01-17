@@ -14,24 +14,20 @@ namespace Labrune.Translators
             this.ApiKey = apiKey;
         }
 
-        public async Task<string> Translate(HttpClient client, string text, string[] rules)
-        {
-            // Prepare System Prompt
-            StringBuilder systemPrompt = new StringBuilder();
-            systemPrompt.AppendLine("You are a translator for a racing game. Translate the following text to Turkish.");
-            systemPrompt.AppendLine("Do not translate special names, car brands, or technical terms found in the glossary.");
-            if (rules.Length > 0)
-            {
-                systemPrompt.AppendLine("Glossary / Rules:");
-                foreach (var r in rules) systemPrompt.AppendLine("- " + r);
-            }
-            systemPrompt.AppendLine("Return ONLY the translated text, no quotes, no explanations.");
+        public bool RequiresApiKey { get { return true; } }
+        public bool SupportsCustomPrompt { get { return true; } }
+        public bool SupportsModelSelection { get { return true; } }
 
-            // Simple manually constructed JSON to avoid dependencies
+        public async Task<string> Translate(HttpClient client, string text, string customPrompt, string modelName, string extraParams)
+        {
+            string baseUrl = string.IsNullOrEmpty(extraParams) ? "https://api.openai.com/v1/chat/completions" : extraParams;
+            string model = string.IsNullOrEmpty(modelName) ? "gpt-3.5-turbo" : modelName;
+            
+            // Build the JSON with the user's custom prompt and model
             string jsonContent = "{" +
-                "\"model\": \"gpt-3.5-turbo\"," + // Or gpt-4
+                "\"model\": \"" + model + "\"," +
                 "\"messages\": [" +
-                    "{\"role\": \"system\", \"content\": \"" + EscapeJson(systemPrompt.ToString()) + "\"}," +
+                    "{\"role\": \"system\", \"content\": \"" + EscapeJson(customPrompt) + "\"}," +
                     "{\"role\": \"user\", \"content\": \"" + EscapeJson(text) + "\"}]" +
             "}";
 
@@ -41,20 +37,21 @@ namespace Labrune.Translators
             {
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", this.ApiKey));
-                var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content);
+                
+                // Allow for custom headers if needed in future, but for now just Auth
+                
+                var response = await client.PostAsync(baseUrl, content);
                 string responseString = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Parse "content": "..."
-                    // Very hacky parser for demo purposes
+                    // Parse "content": "..." using the same manual but robust logic
                     int contentIndex = responseString.IndexOf("\"content\":");
                     if (contentIndex > 0)
                     {
                         int startQuote = responseString.IndexOf("\"", contentIndex + 10);
                         if (startQuote > 0)
                         {
-                            // Find end quote, watching for escapes
                             int endQuote = startQuote + 1;
                             while (endQuote < responseString.Length)
                             {
@@ -73,8 +70,19 @@ namespace Labrune.Translators
                         }
                     }
                 }
+                else
+                {
+                    // Log error if possible or just return original
+                    // For now, we return text, but the caller will see it didn't change
+                    // Ideally we should throw or return a visual error, but legacy code pattern returns text.
+                    // Let's print to console for now
+                    Console.WriteLine("API Error: " + response.StatusCode + " " + responseString);
+                }
             }
-            catch { }
+            catch (Exception ex) 
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+            }
 
             return text; // Return original on failure
         }
@@ -88,7 +96,7 @@ namespace Labrune.Translators
         private string UnescapeJson(string s)
         {
             if (s == null) return "";
-            return s.Replace("\\\"", "\"").Replace("\\n", "\n").Replace("\\\\", "\\");
+            return s.Replace("\\\"", "\"").Replace("\\n", "\n").Replace("\\\\",("\\"));
         }
     }
 }
