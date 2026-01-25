@@ -61,8 +61,8 @@ namespace Labrune
         private void OKButton_Click(object sender, EventArgs e)
         {
             NewHash = HashTextBox.Text;
-            NewValue = EditStringTextBox.Text;
-            NewLabel = LabelTextBox.Text;
+            NewValue = CharacterNormalizer.Normalize(EditStringTextBox.Text);
+            NewLabel = CharacterNormalizer.Normalize(LabelTextBox.Text);
 
             DialogResult = DialogResult.OK;
             Close();

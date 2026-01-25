@@ -94,5 +94,29 @@ namespace Labrune.Properties {
                 this["TargetLang"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CharNormalizationEnabled {
+            get {
+                return ((bool)(this["CharNormalizationEnabled"]));
+            }
+            set {
+                this["CharNormalizationEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ü:u,Ü:U,ğ:g,Ğ:G,ş:s,Ş:S,ı:i,İ:I,ö:o,Ö:O,ç:c,Ç:C")]
+        public string CharNormalizationRules {
+            get {
+                return ((string)(this["CharNormalizationRules"]));
+            }
+            set {
+                this["CharNormalizationRules"] = value;
+            }
+        }
     }
 }

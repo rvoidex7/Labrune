@@ -60,6 +60,8 @@ namespace Labrune
             this.TranslateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.fontSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
+            this.CharacterNormalizationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutLabruneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LangStringView = new System.Windows.Forms.ListView();
@@ -238,7 +240,9 @@ namespace Labrune
             this.NextModifiedToolStripMenuItem,
             this.toolStripSeparator6,
             this.TranslateToolStripMenuItem,
-            this.fontSettingsToolStripMenuItem});
+            this.fontSettingsToolStripMenuItem,
+            this.toolStripSeparator8,
+            this.CharacterNormalizationToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -343,9 +347,22 @@ namespace Labrune
             // 
             this.fontSettingsToolStripMenuItem.Name = "fontSettingsToolStripMenuItem";
             this.fontSettingsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F)));
-            this.fontSettingsToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.fontSettingsToolStripMenuItem.Size = new System.Drawing.Size(280, 22);
             this.fontSettingsToolStripMenuItem.Text = "Font Settings...";
             this.fontSettingsToolStripMenuItem.Click += new System.EventHandler(this.fontSettingsToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator8
+            // 
+            this.toolStripSeparator8.Name = "toolStripSeparator8";
+            this.toolStripSeparator8.Size = new System.Drawing.Size(277, 6);
+            // 
+            // CharacterNormalizationToolStripMenuItem
+            // 
+            this.CharacterNormalizationToolStripMenuItem.Name = "CharacterNormalizationToolStripMenuItem";
+            this.CharacterNormalizationToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
+            this.CharacterNormalizationToolStripMenuItem.Size = new System.Drawing.Size(280, 22);
+            this.CharacterNormalizationToolStripMenuItem.Text = "Character Normalization...";
+            this.CharacterNormalizationToolStripMenuItem.Click += new System.EventHandler(this.CharacterNormalizationToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -560,5 +577,7 @@ namespace Labrune
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripMenuItem restoreBackupsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
+        private System.Windows.Forms.ToolStripMenuItem CharacterNormalizationToolStripMenuItem;
     }
 }

@@ -257,7 +257,7 @@ namespace Labrune
                         if (!string.IsNullOrEmpty(result) && result != record.Text)
                         {
                             LabruneLog.Instance.Log(">> SUCCESS: Text Updated!");
-                            record.Text = result;
+                            record.Text = CharacterNormalizer.Normalize(result);
                             record.IsModified = true;
                         }
                         else

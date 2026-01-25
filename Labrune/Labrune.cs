@@ -864,6 +864,43 @@ namespace Labrune
             }
         }
 
+        private void CharacterNormalizationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var settingsForm = new LabruneCharNormSettings();
+            DialogResult result = settingsForm.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                // Check if batch conversion was requested
+                if (settingsForm.Tag != null && settingsForm.Tag.ToString() == "BATCH_CONVERT")
+                {
+                    // Apply normalization to all records in current chunk
+                    int changedCount = CharacterNormalizer.NormalizeAllRecords(LangChunks[CurrentChunk].Strings);
+                    
+                    if (changedCount > 0)
+                    {
+                        MarkFileAsModified();
+                        RefreshStringView();
+                        
+                        MessageBox.Show(
+                            string.Format("Normalizasyon tamamlandı!\n\n{0} kayıt güncellendi.", changedCount),
+                            "Toplu Dönüşüm",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            "Hiçbir değişiklik yapılmadı.\n\nTüm kayıtlar zaten normalizasyon kurallarına uygun.",
+                            "Toplu Dönüşüm",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                }
+            }
+        }
+
+
         private void LangStringView_DoubleClick(object sender, MouseEventArgs e)
         {
             ListViewHitTestInfo info = LangStringView.HitTest(e.X, e.Y);

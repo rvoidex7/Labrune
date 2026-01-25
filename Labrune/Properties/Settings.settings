@@ -20,5 +20,11 @@
     <Setting Name="TargetLang" Type="System.String" Scope="User">
       <Value Profile="(Default)">TR</Value>
     </Setting>
+    <Setting Name="CharNormalizationEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="CharNormalizationRules" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ü:u,Ü:U,ğ:g,Ğ:G,ş:s,Ş:S,ı:i,İ:I,ö:o,Ö:O,ç:c,Ç:C</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
